@@ -32,7 +32,8 @@ const shopify = shopifyApp({
           currencyCode: "USD",
           interval: BillingInterval.Every30Days,
         }
-      ]
+      ],
+      trialDays: 0
     },
     "PRO": {
       lineItems: [
@@ -41,7 +42,8 @@ const shopify = shopifyApp({
           currencyCode: "USD",
           interval: BillingInterval.Every30Days,
         }
-      ]
+      ],
+      trialDays: 0
     },
     "VIP": {
       lineItems: [
@@ -50,7 +52,8 @@ const shopify = shopifyApp({
           currencyCode: "USD",
           interval: BillingInterval.Every30Days,
         }
-      ]
+      ],
+      trialDays: 0
     },
   },
 });
