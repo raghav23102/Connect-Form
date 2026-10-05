@@ -20,7 +20,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
           // Mark shop as uninstalled, keep data for compliance period
           await prisma.shop.update({
             where: { id: shopRecord.id },
-            data: { subscriptionStatus: "uninstalled" },
+            data: { subscriptionStatus: "uninstalled", plan: "free" },
           });
         }
         await prisma.session.deleteMany({ where: { shop } });
