@@ -179,7 +179,8 @@ export default function SubmissionsPage() {
       subtitle={`${total} total submission${total !== 1 ? "s" : ""}`}
       primaryAction={{
         content: "Export CSV",
-        onAction: () => submit({ intent: "export", formId: formFilter[0] || "" }, { method: "post" }),
+        url: `/app/submissions/export?formId=${formFilter[0] || ""}`,
+        external: true,
       }}
     >
       <Card>
