@@ -1,6 +1,6 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import { useLoaderData, useSubmit } from "@remix-run/react";
+import { useLoaderData, useSubmit, useActionData } from "@remix-run/react";
 import {
   Page,
   Card,
@@ -115,6 +115,7 @@ const PLAN_GRADIENTS: Record<string, string> = {
 
 export default function BillingPage() {
   const { shop, currentPlan, subscription } = useLoaderData<typeof loader>();
+  const actionData = useActionData<{ error?: string; success?: boolean; message?: string }>();
   const submit = useSubmit();
 
   const handleUpgrade = (planId: string) => {
@@ -128,6 +129,16 @@ export default function BillingPage() {
       subtitle="Choose the plan that's right for your store"
     >
       <BlockStack gap="600">
+        {actionData?.error && (
+          <Banner tone="critical" title="Billing Error">
+            <p>{actionData.error}</p>
+          </Banner>
+        )}
+        {actionData?.success && actionData?.message && (
+          <Banner tone="success">
+            <p>{actionData.message}</p>
+          </Banner>
+        )}
         {/* Current Plan Banner */}
         <Banner tone={shop.plan === "free" ? "info" : "success"}>
           <p>
