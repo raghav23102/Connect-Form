@@ -32,18 +32,12 @@ export default function App() {
   );
 }
 
+import { boundary } from "@shopify/shopify-app-remix/server";
+
 export function ErrorBoundary() {
-  const error = useRouteError() as Error;
-  return (
-    <div style={{ padding: "20px" }}>
-      <h1>App Error</h1>
-      <pre>{error.message || "Unknown error occurred"}</pre>
-    </div>
-  );
+  return boundary.error(useRouteError());
 }
 
 export const headers: HeadersFunction = (headersArgs) => {
-  return {
-    "Content-Security-Policy": "frame-ancestors https://admin.shopify.com https://*.myshopify.com;",
-  };
+  return boundary.headers(headersArgs);
 };
