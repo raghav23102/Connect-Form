@@ -872,8 +872,6 @@ export default function FormEditor() {
                       onChange={(v) => setSettings({ ...settings, spamProtection: v })}
                     />
                   </FormLayout>
-
-                  </FormLayout>
                 </BlockStack>
 
                 {/* Right: Flow Config */}
@@ -1007,3 +1005,4 @@ export default function FormEditor() {
     </Page>
   );
 }
+
