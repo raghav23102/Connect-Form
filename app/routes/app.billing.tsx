@@ -44,7 +44,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
             data: { shopId: shop.id, plan: planParam, status: "active" },
           });
         }
-        return redirect("/app/billing?updated=1");
+        // Don't redirect, just fall through so we preserve Shopify's URL params!
       }
     } catch (err) {
       console.error("Failed to verify billing", err);
