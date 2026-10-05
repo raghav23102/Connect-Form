@@ -409,6 +409,7 @@ export default function FormEditor() {
   const [logic, setLogic] = useState<unknown[]>(form ? JSON.parse(form.logic || "[]") : []);
   const [selectedField, setSelectedField] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [templateSearch, setTemplateSearch] = useState("");
 
   // ─── New rule modal ───────────────────────────────────────────────────────
   const [showRuleModal, setShowRuleModal] = useState(false);
@@ -476,21 +477,39 @@ export default function FormEditor() {
         subtitle="Select a design to start building your form"
         backAction={{ onAction: () => navigate("/app/forms") }}
       >
-        <div style={{ marginBottom: "24px" }}>
-          <TextField
-            label="Form Name"
-            value={name}
-            onChange={setName}
-            placeholder="e.g. Contact Us"
-            autoComplete="off"
-          />
+        <div style={{ marginBottom: "24px", display: "flex", gap: "16px" }}>
+          <div style={{ flex: 1 }}>
+            <TextField
+              label="Form Name"
+              value={name}
+              onChange={setName}
+              placeholder="e.g. Contact Us"
+              autoComplete="off"
+            />
+          </div>
+          <div style={{ flex: 1 }}>
+            <TextField
+              label="Search Templates"
+              value={templateSearch}
+              onChange={setTemplateSearch}
+              placeholder="Search by name, category..."
+              autoComplete="off"
+              clearButton
+              onClearButtonClick={() => setTemplateSearch("")}
+            />
+          </div>
         </div>
         <div style={{
           display: "grid",
           gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
           gap: "16px",
         }}>
-          {FORM_TEMPLATES.map((tpl) => {
+          {FORM_TEMPLATES.filter(tpl => 
+            !templateSearch || 
+            tpl.name.toLowerCase().includes(templateSearch.toLowerCase()) || 
+            tpl.category.toLowerCase().includes(templateSearch.toLowerCase()) ||
+            tpl.description.toLowerCase().includes(templateSearch.toLowerCase())
+          ).map((tpl) => {
             const PLAN_LEVELS: Record<string, number> = { free: 0, simple: 1, pro: 2, vip: 3 };
             const reqLevel = PLAN_LEVELS[tpl.plan || "free"] || 0;
             const shopLevel = PLAN_LEVELS[shop.plan] || 0;

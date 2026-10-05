@@ -77,13 +77,22 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const plan = getPlan(planId);
   if (plan.price === 0) return json({ error: "Invalid plan" }, { status: 400 });
 
-  // Shopify's billing.request throws a Response to redirect the user to the approval screen.
-  // We must not catch it.
-  await billing.request({
-    plan: plan.name,
-    isTest: true,
-    returnUrl: `${process.env.SHOPIFY_APP_URL}/app/billing?plan=${planId}&success=1`,
-  });
+  try {
+    const url = new URL(request.url);
+    const returnUrl = `${url.protocol}//${url.host}/app/billing?plan=${planId}&success=1`;
+    
+    await billing.request({
+      plan: plan.name,
+      isTest: true,
+      returnUrl: returnUrl,
+    });
+  } catch (err: any) {
+    if (err instanceof Response) {
+      throw err; // Let Remix handle the redirect response
+    }
+    console.error("Billing request error:", err);
+    return json({ error: err.message || String(err) }, { status: 500 });
+  }
 
   return null;
 };
