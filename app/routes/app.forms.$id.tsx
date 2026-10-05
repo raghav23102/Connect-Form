@@ -873,99 +873,12 @@ export default function FormEditor() {
                     />
                   </FormLayout>
 
-                  <Divider />
-                  <Text as="h3" variant="headingSm">Email Notifications</Text>
-                  <FormLayout>
-                    <TextField
-                      label="Notification Email"
-                      value={(settings.notificationEmail as string) || ""}
-                      onChange={(v) => setSettings({ ...settings, notificationEmail: v })}
-                      placeholder="admin@yourstore.com"
-                      helpText="Where new submissions will be sent"
-                      autoComplete="off"
-                      type="email"
-                    />
-                    <TextField
-                      label="CC"
-                      value={(settings.cc as string) || ""}
-                      onChange={(v) => setSettings({ ...settings, cc: v })}
-                      placeholder="cc@yourstore.com"
-                      autoComplete="off"
-                    />
-                    <TextField
-                      label="BCC"
-                      value={(settings.bcc as string) || ""}
-                      onChange={(v) => setSettings({ ...settings, bcc: v })}
-                      placeholder="bcc@yourstore.com"
-                      autoComplete="off"
-                    />
-                  </FormLayout>
-
-                  <Divider />
-                  <Text as="h3" variant="headingSm">Auto-Response</Text>
-                  <FormLayout>
-                    <Checkbox
-                      label="Send auto-response to customer"
-                      checked={!!(settings.autoResponseEnabled)}
-                      onChange={(v) => setSettings({ ...settings, autoResponseEnabled: v })}
-                      helpText="Sends a confirmation email to the customer after submission"
-                    />
-                    {Boolean(settings.autoResponseEnabled) && (
-                      <>
-                        <TextField
-                          label="Subject"
-                          value={(settings.autoResponseSubject as string) || "We received your message"}
-                          onChange={(v) => setSettings({ ...settings, autoResponseSubject: v })}
-                          autoComplete="off"
-                        />
-                        <TextField
-                          label="Message Body"
-                          value={(settings.autoResponseBody as string) || "Thank you for contacting us."}
-                          onChange={(v) => setSettings({ ...settings, autoResponseBody: v })}
-                          multiline={4}
-                          autoComplete="off"
-                        />
-                      </>
-                    )}
                   </FormLayout>
                 </BlockStack>
 
-                {/* Right: Routing Rules */}
+                {/* Right: Flow Config */}
                 {!isNew && (
                   <BlockStack gap="400">
-                    <InlineStack align="space-between">
-                      <Text as="h3" variant="headingSm">Email Routing Rules</Text>
-                      <Button size="micro" onClick={() => setShowRuleModal(true)}>+ Add Rule</Button>
-                    </InlineStack>
-                    {notificationRules.length === 0 ? (
-                      <div style={{ padding: "24px", border: "2px dashed #e5e7eb", borderRadius: "8px", textAlign: "center" }}>
-                        <p style={{ color: "#9ca3af", fontSize: "13px", margin: 0 }}>
-                          No routing rules yet. Add rules to route submissions to different email addresses.
-                        </p>
-                      </div>
-                    ) : (
-                      <BlockStack gap="200">
-                        {notificationRules.map((rule: any) => (
-                          <div key={rule.id} style={{ padding: "12px", border: "1px solid #e5e7eb", borderRadius: "8px", background: "#f9fafb" }}>
-                            <InlineStack align="space-between">
-                              <div>
-                                <Text as="p" variant="bodyMd" fontWeight="semibold">{rule.name || "Rule"}</Text>
-                                <p style={{ margin: "2px 0 0", fontSize: "12px", color: "#6b7280" }}>→ {rule.recipient}</p>
-                              </div>
-                              <Button
-                                size="micro"
-                                tone="critical"
-                                onClick={() => submit({ intent: "deleteRule", ruleId: rule.id }, { method: "post" })}
-                              >
-                                Delete
-                              </Button>
-                            </InlineStack>
-                          </div>
-                        ))}
-                      </BlockStack>
-                    )}
-
-                    <Divider />
                     <Text as="h3" variant="headingSm">Shopify Flow</Text>
                     <Banner tone="info">
                       <p>Connect Form fires a <strong>Form Submitted</strong> trigger in Shopify Flow after each submission.</p>
@@ -1091,30 +1004,6 @@ export default function FormEditor() {
         </Card>
       </BlockStack>
 
-      {/* Add Rule Modal */}
-      <Modal
-        open={showRuleModal}
-        onClose={() => setShowRuleModal(false)}
-        title="Add Routing Rule"
-        primaryAction={{
-          content: "Add Rule",
-          onAction: () => {
-            submit({ intent: "addRule", recipient: ruleData.recipient, cc: ruleData.cc, bcc: ruleData.bcc, ruleName: ruleData.name, condition: "{}" }, { method: "post" });
-            setShowRuleModal(false);
-            setRuleData({ recipient: "", cc: "", bcc: "", name: "" });
-          },
-        }}
-        secondaryActions={[{ content: "Cancel", onAction: () => setShowRuleModal(false) }]}
-      >
-        <Modal.Section>
-          <FormLayout>
-            <TextField label="Rule Name (optional)" value={ruleData.name} onChange={(v) => setRuleData({ ...ruleData, name: v })} autoComplete="off" placeholder="e.g. Sales routing" />
-            <TextField label="Send To *" value={ruleData.recipient} onChange={(v) => setRuleData({ ...ruleData, recipient: v })} autoComplete="off" type="email" placeholder="sales@example.com" />
-            <TextField label="CC" value={ruleData.cc} onChange={(v) => setRuleData({ ...ruleData, cc: v })} autoComplete="off" type="email" placeholder="manager@example.com" />
-            <TextField label="BCC" value={ruleData.bcc} onChange={(v) => setRuleData({ ...ruleData, bcc: v })} autoComplete="off" type="email" placeholder="admin@example.com" />
-          </FormLayout>
-        </Modal.Section>
-      </Modal>
     </Page>
   );
 }

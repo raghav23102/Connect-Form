@@ -96,7 +96,6 @@ export default function SettingsPage() {
 
   const tabs = [
     { id: "general", content: "General" },
-    { id: "email", content: "Email" },
     { id: "submission", content: "Submissions" },
     { id: "defaults", content: "Form Defaults" },
     { id: "support", content: "Support" },
@@ -145,74 +144,8 @@ export default function SettingsPage() {
             </BlockStack>
           )}
 
-          {/* ── Email ────────────────────────────────────────────────────── */}
-          {selectedTab === 1 && (
-            <BlockStack gap="400">
-              <Text as="h2" variant="headingMd">Notification Email</Text>
-              <FormLayout>
-                <TextField
-                  label="Default Notification Email"
-                  value={form.notificationEmail}
-                  onChange={(v) => setForm({ ...form, notificationEmail: v })}
-                  type="email"
-                  placeholder="admin@yourstore.com"
-                  helpText="Where new form submissions will be sent. Can be overridden per form."
-                  autoComplete="off"
-                />
-                <FormLayout.Group>
-                  <TextField
-                    label="Sender Name"
-                    value={form.senderName}
-                    onChange={(v) => setForm({ ...form, senderName: v })}
-                    placeholder="Connect Form"
-                    autoComplete="off"
-                  />
-                  <TextField
-                    label="Reply-To Email"
-                    value={form.replyToEmail}
-                    onChange={(v) => setForm({ ...form, replyToEmail: v })}
-                    type="email"
-                    placeholder="noreply@yourstore.com"
-                    autoComplete="off"
-                  />
-                </FormLayout.Group>
-              </FormLayout>
-
-              <Divider />
-              <Text as="h2" variant="headingMd">Auto-Response</Text>
-              <Banner tone="info">
-                <p>Auto-response settings here are global defaults. They can be overridden per form in Form → Settings.</p>
-              </Banner>
-              <FormLayout>
-                <Checkbox
-                  label="Enable auto-response to customers by default"
-                  checked={form.autoResponseEnabled}
-                  onChange={(v) => setForm({ ...form, autoResponseEnabled: v })}
-                  helpText="Sends a confirmation email to the customer after submission"
-                />
-                {form.autoResponseEnabled && (
-                  <>
-                    <TextField
-                      label="Default Subject"
-                      value={form.autoResponseSubject}
-                      onChange={(v) => setForm({ ...form, autoResponseSubject: v })}
-                      autoComplete="off"
-                    />
-                    <TextField
-                      label="Default Message"
-                      value={form.autoResponseBody}
-                      onChange={(v) => setForm({ ...form, autoResponseBody: v })}
-                      multiline={5}
-                      autoComplete="off"
-                    />
-                  </>
-                )}
-              </FormLayout>
-            </BlockStack>
-          )}
-
           {/* ── Submissions ───────────────────────────────────────────────── */}
-          {selectedTab === 2 && (
+          {selectedTab === 1 && (
             <BlockStack gap="400">
               <Text as="h2" variant="headingMd">Submission Settings</Text>
               <FormLayout>
@@ -251,7 +184,7 @@ export default function SettingsPage() {
           )}
 
           {/* ── Form Defaults ─────────────────────────────────────────────── */}
-          {selectedTab === 3 && (
+          {selectedTab === 2 && (
             <BlockStack gap="400">
               <Text as="h2" variant="headingMd">Form Defaults</Text>
               <Banner tone="info">
@@ -292,7 +225,7 @@ export default function SettingsPage() {
           )}
 
           {/* ── Support ───────────────────────────────────────────────────── */}
-          {selectedTab === 4 && (
+          {selectedTab === 2 && (
             <BlockStack gap="400">
               <Text as="h2" variant="headingMd">Support</Text>
               <div style={{
@@ -361,3 +294,4 @@ export default function SettingsPage() {
     </Page>
   );
 }
+
