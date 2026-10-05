@@ -1,6 +1,16 @@
 # Connect Form — Shopify App Configuration
 
 client_id = "239d4dc6b731b0c50292371bf6920f93"
+name = "Connect Form"
+application_url = "https://connectform.vercel.app"
+embedded = true
+
+[auth]
+redirect_urls = [
+  "https://connectform.vercel.app/auth/callback",
+  "https://connectform.vercel.app/auth/shopify/callback",
+  "https://connectform.vercel.app/api/auth/callback"
+]
 
 [access_scopes]
 scopes = "read_customers,write_customers,read_orders,read_products"
