@@ -1,6 +1,6 @@
 # Connect Form — Shopify App Configuration
 
-client_id = ""
+client_id = "239d4dc6b731b0c50292371bf6920f93"
 
 [access_scopes]
 scopes = "read_customers,write_customers,read_orders,read_products"
