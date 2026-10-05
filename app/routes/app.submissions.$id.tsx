@@ -1,0 +1,320 @@
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
+import { json } from "@remix-run/node";
+import { useLoaderData, useNavigate, useSubmit } from "@remix-run/react";
+import {
+  Page,
+  Card,
+  Text,
+  Button,
+  InlineStack,
+  BlockStack,
+  Badge,
+  Divider,
+  Modal,
+  FormLayout,
+  TextField,
+  Banner,
+  Box,
+} from "@shopify/polaris";
+import { useState } from "react";
+
+import { authenticate } from "../shopify.server";
+import {
+  getOrCreateShop,
+  getSubmission,
+  updateSubmissionStatus,
+  deleteSubmission,
+} from "../services/forms.server";
+import { emailService } from "../services/email.server";
+import { prisma } from "../db.server";
+
+export const loader = async ({ request, params }: LoaderFunctionArgs) => {
+  const { session } = await authenticate.admin(request);
+  const shop = await getOrCreateShop(session.shop);
+  const submission = await getSubmission(params.id!, shop.id);
+  if (!submission) throw new Response("Not found", { status: 404 });
+  return json({ shop, submission });
+};
+
+export const action = async ({ request, params }: ActionFunctionArgs) => {
+  const { session } = await authenticate.admin(request);
+  const shop = await getOrCreateShop(session.shop);
+  const body = await request.formData();
+  const intent = body.get("intent") as string;
+  const submissionId = params.id!;
+
+  if (intent === "updateStatus") {
+    await updateSubmissionStatus(submissionId, shop.id, body.get("status") as string);
+    return json({ success: true });
+  }
+
+  if (intent === "delete") {
+    await deleteSubmission(submissionId, shop.id);
+    return json({ success: true, deleted: true });
+  }
+
+  if (intent === "forward") {
+    const submission = await getSubmission(submissionId, shop.id);
+    if (!submission) return json({ error: "Not found" }, { status: 404 });
+
+    const fields = JSON.parse(submission.data || "{}") as Record<string, string>;
+    const html = emailService.buildForwardEmail({
+      submissionId: submission.submissionId,
+      formName: submission.form.name,
+      fields,
+      customMessage: body.get("message") as string || undefined,
+      submittedAt: new Date(submission.createdAt).toLocaleString(),
+    });
+
+    const result = await emailService.send({
+      to: body.get("to") as string,
+      cc: (body.get("cc") as string) || undefined,
+      bcc: (body.get("bcc") as string) || undefined,
+      subject: (body.get("subject") as string) || `Fwd: ${submission.form.name} Submission`,
+      html,
+    });
+
+    await prisma.emailLog.create({
+      data: {
+        shopId: shop.id,
+        submissionId,
+        recipient: body.get("to") as string,
+        type: "forward",
+        status: result.success ? "sent" : "failed",
+        error: result.error,
+        sentAt: result.success ? new Date() : undefined,
+      },
+    });
+
+    return json({ success: result.success, error: result.error });
+  }
+
+  return json({ error: "Unknown" }, { status: 400 });
+};
+
+function StatusBadge({ status }: { status: string }) {
+  const tones: Record<string, "success" | "info" | "warning" | "attention"> = {
+    new: "attention",
+    read: "info",
+    replied: "success",
+    archived: "warning",
+  };
+  return <Badge tone={tones[status] || "info"}>{status.charAt(0).toUpperCase() + status.slice(1)}</Badge>;
+}
+
+export default function SubmissionDetail() {
+  const { submission } = useLoaderData<typeof loader>();
+  const navigate = useNavigate();
+  const submit = useSubmit();
+  const fields = JSON.parse(submission.data || "{}") as Record<string, string>;
+
+  const [showForwardModal, setShowForwardModal] = useState(false);
+  const [forwardData, setForwardData] = useState({
+    to: "",
+    cc: "",
+    bcc: "",
+    subject: `Fwd: ${submission.form.name} Submission`,
+    message: "",
+  });
+
+  const handleStatusChange = (status: string) => {
+    submit({ intent: "updateStatus", status }, { method: "post" });
+  };
+
+  const handleDelete = () => {
+    if (confirm("Delete this submission? This cannot be undone.")) {
+      submit({ intent: "delete" }, { method: "post" });
+      navigate("/app/submissions");
+    }
+  };
+
+  const handleForward = () => {
+    submit(
+      { intent: "forward", ...forwardData },
+      { method: "post" }
+    );
+    setShowForwardModal(false);
+    shopify.toast.show("Submission forwarded!");
+  };
+
+  return (
+    <Page
+      title={`Submission ${submission.submissionId}`}
+      subtitle={`Form: ${submission.form.name}`}
+      backAction={{ url: "/app/submissions" }}
+      secondaryActions={[
+        { content: "Forward", onAction: () => setShowForwardModal(true) },
+        {
+          content: submission.status === "read" ? "Mark Unread" : "Mark Read",
+          onAction: () => handleStatusChange(submission.status === "read" ? "new" : "read"),
+        },
+        {
+          content: "Mark Replied",
+          onAction: () => handleStatusChange("replied"),
+        },
+        {
+          content: "Archive",
+          onAction: () => handleStatusChange("archived"),
+        },
+        { content: "Delete", destructive: true, onAction: handleDelete },
+      ]}
+    >
+      <BlockStack gap="500">
+        {/* Meta */}
+        <Card>
+          <InlineStack gap="400" wrap>
+            <div>
+              <Text as="p" variant="bodySm" tone="subdued">Status</Text>
+              <StatusBadge status={submission.status} />
+            </div>
+            <div>
+              <Text as="p" variant="bodySm" tone="subdued">Submitted</Text>
+              <Text as="p" variant="bodyMd">
+                {new Date(submission.createdAt).toLocaleString("en-US", {
+                  year: "numeric", month: "long", day: "numeric",
+                  hour: "2-digit", minute: "2-digit",
+                })}
+              </Text>
+            </div>
+            <div>
+              <Text as="p" variant="bodySm" tone="subdued">Form</Text>
+              <code style={{ fontSize: "12px", color: "#6366f1", background: "#eef2ff", padding: "2px 8px", borderRadius: "4px" }}>
+                {submission.form.formId}
+              </code>
+            </div>
+            {submission.category && (
+              <div>
+                <Text as="p" variant="bodySm" tone="subdued">Category</Text>
+                <Badge>{submission.category}</Badge>
+              </div>
+            )}
+          </InlineStack>
+        </Card>
+
+        {/* Submitted Fields */}
+        <Card>
+          <BlockStack gap="300">
+            <Text as="h2" variant="headingMd">Submission Details</Text>
+            <Divider />
+            <div style={{ borderRadius: "8px", overflow: "hidden", border: "1px solid #e5e7eb" }}>
+              {Object.entries(fields).map(([key, value], idx) => (
+                <div
+                  key={key}
+                  style={{
+                    display: "flex",
+                    padding: "12px 16px",
+                    background: idx % 2 === 0 ? "#fff" : "#f9fafb",
+                    borderBottom: "1px solid #f0f0f0",
+                    gap: "16px",
+                  }}
+                >
+                  <div style={{ width: "35%", fontWeight: 600, fontSize: "14px", color: "#374151", flexShrink: 0 }}>
+                    {key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, " $1")}
+                  </div>
+                  <div style={{ fontSize: "14px", color: "#6b7280", flex: 1, wordBreak: "break-word" }}>
+                    {value || "—"}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Quick Reply */}
+            <Box paddingBlockStart="200">
+              <InlineStack gap="200">
+                <Button
+                  onClick={() => {
+                    const email = fields.email || fields.Email || "";
+                    if (email) window.open(`mailto:${email}?subject=Re: ${submission.form.name}`);
+                  }}
+                >
+                  Reply via Email
+                </Button>
+                <Button onClick={() => setShowForwardModal(true)}>Forward</Button>
+              </InlineStack>
+            </Box>
+          </BlockStack>
+        </Card>
+
+        {/* Email Logs */}
+        {submission.emailLogs && submission.emailLogs.length > 0 && (
+          <Card>
+            <BlockStack gap="300">
+              <Text as="h2" variant="headingMd">Email Activity</Text>
+              <Divider />
+              {submission.emailLogs.map((log) => (
+                <InlineStack key={log.id} align="space-between">
+                  <div>
+                    <Text as="span" variant="bodyMd">{log.type.charAt(0).toUpperCase() + log.type.slice(1)}</Text>
+                    <p style={{ margin: "2px 0 0", fontSize: "12px", color: "#9ca3af" }}>→ {log.recipient}</p>
+                  </div>
+                  <InlineStack gap="200">
+                    <Badge tone={log.status === "sent" ? "success" : "critical"}>{log.status}</Badge>
+                    {log.sentAt && (
+                      <Text as="span" variant="bodySm" tone="subdued">
+                        {new Date(log.sentAt).toLocaleString()}
+                      </Text>
+                    )}
+                  </InlineStack>
+                </InlineStack>
+              ))}
+            </BlockStack>
+          </Card>
+        )}
+      </BlockStack>
+
+      {/* Forward Modal */}
+      <Modal
+        open={showForwardModal}
+        onClose={() => setShowForwardModal(false)}
+        title="Forward Submission"
+        primaryAction={{ content: "Send", onAction: handleForward }}
+        secondaryActions={[{ content: "Cancel", onAction: () => setShowForwardModal(false) }]}
+      >
+        <Modal.Section>
+          <FormLayout>
+            <TextField
+              label="Recipient Email *"
+              value={forwardData.to}
+              onChange={(v) => setForwardData({ ...forwardData, to: v })}
+              type="email"
+              placeholder="support@example.com"
+              autoComplete="off"
+            />
+            <FormLayout.Group>
+              <TextField
+                label="CC"
+                value={forwardData.cc}
+                onChange={(v) => setForwardData({ ...forwardData, cc: v })}
+                type="email"
+                placeholder="Optional"
+                autoComplete="off"
+              />
+              <TextField
+                label="BCC"
+                value={forwardData.bcc}
+                onChange={(v) => setForwardData({ ...forwardData, bcc: v })}
+                type="email"
+                placeholder="Optional"
+                autoComplete="off"
+              />
+            </FormLayout.Group>
+            <TextField
+              label="Subject"
+              value={forwardData.subject}
+              onChange={(v) => setForwardData({ ...forwardData, subject: v })}
+              autoComplete="off"
+            />
+            <TextField
+              label="Custom Message (optional)"
+              value={forwardData.message}
+              onChange={(v) => setForwardData({ ...forwardData, message: v })}
+              multiline={3}
+              placeholder="Add a note to the forwarded email..."
+              autoComplete="off"
+            />
+          </FormLayout>
+        </Modal.Section>
+      </Modal>
+    </Page>
+  );
+}

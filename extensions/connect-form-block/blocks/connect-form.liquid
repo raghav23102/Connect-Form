@@ -1,0 +1,408 @@
+{% comment %}
+  Connect Form - Theme App Extension Block
+  Renders a form on the Shopify storefront using the Form ID
+{% endcomment %}
+
+{% assign form_id = block.settings.form_id | strip %}
+{% if form_id == blank %}
+  <div class="cf-notice">
+    <p>Please enter a Form ID in the block settings to display your form.</p>
+  </div>
+{% else %}
+  <div
+    id="connect-form-wrapper-{{ block.id }}"
+    class="connect-form-block"
+    data-form-id="{{ form_id }}"
+    data-block-id="{{ block.id }}"
+  >
+    <div class="cf-loading" id="cf-loading-{{ block.id }}">
+      <div class="cf-spinner"></div>
+    </div>
+    <div id="cf-form-container-{{ block.id }}" style="display:none;"></div>
+    <div id="cf-success-{{ block.id }}" class="cf-success-message" style="display:none;"></div>
+    <div id="cf-error-{{ block.id }}" class="cf-error-message" style="display:none;"></div>
+  </div>
+{% endif %}
+
+{{ 'connect-form.css' | asset_url | stylesheet_tag }}
+
+<script>
+(function() {
+  const blockId = "{{ block.id }}";
+  const formId = "{{ form_id }}";
+  const APP_URL = "{{ shop.url }}/apps/connect-form";
+  const API_URL = "{{ shop.url }}/apps/connect-form/api/form/" + formId;
+
+  if (!formId) return;
+
+  const wrapper = document.getElementById("connect-form-wrapper-" + blockId);
+  const loading = document.getElementById("cf-loading-" + blockId);
+  const container = document.getElementById("cf-form-container-" + blockId);
+  const successEl = document.getElementById("cf-success-" + blockId);
+  const errorEl = document.getElementById("cf-error-" + blockId);
+
+  // Fetch form config from app
+  fetch(API_URL)
+    .then(r => r.json())
+    .then(data => {
+      if (data.error) {
+        loading.style.display = "none";
+        errorEl.textContent = data.error === "Form is not active"
+          ? "This form is currently unavailable."
+          : "Form not found. Please check the Form ID.";
+        errorEl.style.display = "block";
+        return;
+      }
+
+      const form = data.form;
+      const styling = form.styling || {};
+      const settings = form.settings || {};
+      const fields = form.fields || [];
+      const logic = form.logic || [];
+
+      // Apply CSS variables
+      const style = document.createElement("style");
+      style.textContent = `
+        #connect-form-wrapper-${blockId} {
+          --cf-primary: ${styling.primaryColor || "#6366f1"};
+          --cf-btn-bg: ${styling.buttonColor === "gradient" ? "linear-gradient(135deg,#667eea,#764ba2)" : (styling.buttonColor || "#6366f1")};
+          --cf-btn-text: ${styling.buttonText || "#ffffff"};
+          --cf-bg: ${styling.backgroundColor || "#ffffff"};
+          --cf-radius: ${styling.borderRadius || "8px"};
+          --cf-font: ${styling.fontFamily || "inherit"};
+          --cf-text: ${styling.textColor || "#111827"};
+          font-family: var(--cf-font);
+        }
+      `;
+      document.head.appendChild(style);
+
+      // Render the form
+      const formEl = buildForm(blockId, form, fields, settings, logic, styling);
+      container.appendChild(formEl);
+      loading.style.display = "none";
+      container.style.display = "block";
+
+      // Handle submission
+      formEl.addEventListener("submit", function(e) {
+        e.preventDefault();
+        handleSubmit(formEl, blockId, formId, settings, container, successEl, errorEl);
+      });
+
+      // Apply conditional logic
+      applyLogic(formEl, logic, fields);
+    })
+    .catch(err => {
+      loading.style.display = "none";
+      errorEl.textContent = "Failed to load form. Please try again.";
+      errorEl.style.display = "block";
+      console.error("[Connect Form] Error:", err);
+    });
+
+  function buildForm(blockId, form, fields, settings, logic, styling) {
+    const formEl = document.createElement("form");
+    formEl.id = "cf-form-" + blockId;
+    formEl.className = "cf-form cf-design-" + (form.design || "classic");
+    formEl.setAttribute("novalidate", "");
+
+    // Honeypot field (spam protection)
+    const hp = document.createElement("div");
+    hp.style.cssText = "position:absolute;left:-9999px;opacity:0;pointer-events:none;";
+    hp.innerHTML = '<label>Leave this empty<input type="text" name="_hp_email" tabindex="-1" autocomplete="off"></label>';
+    formEl.appendChild(hp);
+
+    // Fields container
+    const fieldsContainer = document.createElement("div");
+    fieldsContainer.className = "cf-fields";
+
+    fields.forEach(field => {
+      const fieldWrapper = document.createElement("div");
+      fieldWrapper.className = "cf-field cf-width-" + (field.width || "full");
+      fieldWrapper.id = "cf-field-" + field.fieldName;
+      fieldWrapper.setAttribute("data-field-name", field.fieldName);
+
+      if (field.type !== "checkbox") {
+        const label = document.createElement("label");
+        label.className = "cf-label";
+        label.htmlFor = "cf-input-" + blockId + "-" + field.fieldName;
+        label.textContent = field.label + (field.required ? " *" : "");
+        fieldWrapper.appendChild(label);
+      }
+
+      if (field.helpText) {
+        const help = document.createElement("p");
+        help.className = "cf-help";
+        help.textContent = field.helpText;
+        fieldWrapper.appendChild(help);
+      }
+
+      const input = createInput(blockId, field);
+      if (input) fieldWrapper.appendChild(input);
+
+      const errEl = document.createElement("span");
+      errEl.className = "cf-field-error";
+      errEl.id = "cf-err-" + field.fieldName;
+      errEl.style.display = "none";
+      fieldWrapper.appendChild(errEl);
+
+      fieldsContainer.appendChild(fieldWrapper);
+    });
+
+    formEl.appendChild(fieldsContainer);
+
+    // Submit button
+    const btnWrapper = document.createElement("div");
+    btnWrapper.className = "cf-submit-wrapper";
+    const btn = document.createElement("button");
+    btn.type = "submit";
+    btn.className = "cf-submit";
+    btn.textContent = styling.buttonText2 || "Send Message";
+    btn.id = "cf-submit-" + blockId;
+
+    if (styling.buttonColor === "gradient") {
+      btn.style.background = "linear-gradient(135deg, #667eea 0%, #764ba2 100%)";
+    }
+
+    btnWrapper.appendChild(btn);
+    formEl.appendChild(btnWrapper);
+
+    return formEl;
+  }
+
+  function createInput(blockId, field) {
+    const id = "cf-input-" + blockId + "-" + field.fieldName;
+
+    if (field.type === "textarea") {
+      const ta = document.createElement("textarea");
+      ta.name = field.fieldName;
+      ta.id = id;
+      ta.className = "cf-input cf-textarea";
+      ta.placeholder = field.placeholder || "";
+      ta.rows = 4;
+      if (field.required) ta.required = true;
+      return ta;
+    }
+
+    if (field.type === "dropdown") {
+      const sel = document.createElement("select");
+      sel.name = field.fieldName;
+      sel.id = id;
+      sel.className = "cf-input cf-select";
+      if (field.required) sel.required = true;
+      const emptyOpt = document.createElement("option");
+      emptyOpt.value = "";
+      emptyOpt.textContent = field.placeholder || "Select...";
+      sel.appendChild(emptyOpt);
+      (field.options || []).forEach(opt => {
+        const option = document.createElement("option");
+        option.value = opt;
+        option.textContent = opt;
+        sel.appendChild(option);
+      });
+      return sel;
+    }
+
+    if (field.type === "radio") {
+      const wrapper = document.createElement("div");
+      wrapper.className = "cf-radio-group";
+      (field.options || []).forEach(opt => {
+        const label = document.createElement("label");
+        label.className = "cf-radio-label";
+        const radio = document.createElement("input");
+        radio.type = "radio";
+        radio.name = field.fieldName;
+        radio.value = opt;
+        if (field.required) radio.required = true;
+        label.appendChild(radio);
+        label.appendChild(document.createTextNode(" " + opt));
+        wrapper.appendChild(label);
+      });
+      return wrapper;
+    }
+
+    if (field.type === "checkbox") {
+      const label = document.createElement("label");
+      label.className = "cf-checkbox-label";
+      const cb = document.createElement("input");
+      cb.type = "checkbox";
+      cb.name = field.fieldName;
+      cb.id = id;
+      cb.value = "yes";
+      if (field.required) cb.required = true;
+      label.appendChild(cb);
+      label.appendChild(document.createTextNode(" " + (field.placeholder || field.label)));
+      return label;
+    }
+
+    if (field.type === "rating") {
+      const wrapper = document.createElement("div");
+      wrapper.className = "cf-rating-group";
+      const hiddenInput = document.createElement("input");
+      hiddenInput.type = "hidden";
+      hiddenInput.name = field.fieldName;
+      hiddenInput.id = id;
+      wrapper.appendChild(hiddenInput);
+      for (let i = 1; i <= 5; i++) {
+        const star = document.createElement("button");
+        star.type = "button";
+        star.className = "cf-star";
+        star.textContent = "★";
+        star.setAttribute("data-value", String(i));
+        star.addEventListener("click", function() {
+          hiddenInput.value = String(i);
+          wrapper.querySelectorAll(".cf-star").forEach((s, j) => {
+            s.classList.toggle("cf-star-active", j < i);
+          });
+        });
+        wrapper.appendChild(star);
+      }
+      return wrapper;
+    }
+
+    if (field.type === "file") {
+      const input = document.createElement("input");
+      input.type = "file";
+      input.name = field.fieldName;
+      input.id = id;
+      input.className = "cf-file";
+      return input;
+    }
+
+    // Default: text input
+    const typeMap = {
+      email: "email", phone: "tel", number: "number",
+      url: "url", date: "date", time: "time",
+      name: "text", subject: "text", text: "text",
+    };
+
+    const input = document.createElement("input");
+    input.type = typeMap[field.type] || "text";
+    input.name = field.fieldName;
+    input.id = id;
+    input.className = "cf-input";
+    input.placeholder = field.placeholder || "";
+    if (field.required) input.required = true;
+    if (field.validation) {
+      if (field.validation.minLength) input.minLength = field.validation.minLength;
+      if (field.validation.maxLength) input.maxLength = field.validation.maxLength;
+    }
+    return input;
+  }
+
+  function applyLogic(formEl, logic, fields) {
+    if (!logic || !logic.length) return;
+
+    const updateVisibility = () => {
+      logic.forEach(rule => {
+        const sourceField = formEl.querySelector("[name='" + rule.ifField + "']");
+        const targetWrapper = formEl.querySelector("#cf-field-" + rule.targetField);
+        if (!sourceField || !targetWrapper) return;
+
+        const value = sourceField.value || "";
+        let matches = false;
+        if (rule.operator === "is") matches = value.toLowerCase() === rule.value.toLowerCase();
+        else if (rule.operator === "is_not") matches = value.toLowerCase() !== rule.value.toLowerCase();
+        else if (rule.operator === "contains") matches = value.toLowerCase().includes(rule.value.toLowerCase());
+
+        if (rule.action === "show") {
+          targetWrapper.style.display = matches ? "" : "none";
+        } else if (rule.action === "hide") {
+          targetWrapper.style.display = matches ? "none" : "";
+        } else if (rule.action === "require") {
+          const input = targetWrapper.querySelector("input, textarea, select");
+          if (input) input.required = matches;
+        }
+      });
+    };
+
+    // Initial
+    updateVisibility();
+
+    // Listen for changes
+    formEl.addEventListener("change", updateVisibility);
+    formEl.addEventListener("input", updateVisibility);
+  }
+
+  function handleSubmit(formEl, blockId, formId, settings, container, successEl, errorEl) {
+    // Clear previous errors
+    formEl.querySelectorAll(".cf-field-error").forEach(el => el.style.display = "none");
+    errorEl.style.display = "none";
+
+    // Client-side validation
+    let valid = true;
+    formEl.querySelectorAll("[required]").forEach(input => {
+      if (!input.value.trim()) {
+        const errId = "cf-err-" + input.name;
+        const errEl = document.getElementById(errId);
+        if (errEl) {
+          errEl.textContent = "This field is required.";
+          errEl.style.display = "block";
+        }
+        valid = false;
+      }
+    });
+
+    if (!valid) return;
+
+    // Disable submit button
+    const submitBtn = formEl.querySelector(".cf-submit");
+    const originalText = submitBtn.textContent;
+    submitBtn.textContent = "Sending...";
+    submitBtn.disabled = true;
+
+    // Collect form data
+    const formData = new FormData(formEl);
+
+    fetch(API_URL.replace("/api/form/", "/api/form/"), {
+      method: "POST",
+      body: formData,
+    })
+      .then(r => r.json())
+      .then(result => {
+        if (result.success) {
+          if (result.redirectUrl) {
+            window.location.href = result.redirectUrl;
+          } else {
+            container.style.display = "none";
+            successEl.textContent = result.message || settings.successMessage || "Thank you! Your message has been received.";
+            successEl.style.display = "block";
+          }
+        } else {
+          errorEl.textContent = result.error || "Something went wrong. Please try again.";
+          errorEl.style.display = "block";
+          submitBtn.textContent = originalText;
+          submitBtn.disabled = false;
+        }
+      })
+      .catch(() => {
+        errorEl.textContent = "Network error. Please check your connection and try again.";
+        errorEl.style.display = "block";
+        submitBtn.textContent = originalText;
+        submitBtn.disabled = false;
+      });
+  }
+})();
+</script>
+
+{% schema %}
+{
+  "name": "Connect Form",
+  "target": "section",
+  "javascript": "connect-form.js",
+  "stylesheet": "connect-form.css",
+  "settings": [
+    {
+      "type": "text",
+      "id": "form_id",
+      "label": "Form ID",
+      "placeholder": "connect-form-XXXXXX",
+      "info": "Enter your Connect Form ID from the app dashboard. Go to Forms → Copy ID."
+    }
+  ],
+  "presets": [
+    {
+      "name": "Connect Form",
+      "category": "Forms"
+    }
+  ]
+}
+{% endschema %}

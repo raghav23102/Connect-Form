@@ -1,0 +1,392 @@
+/* ═══════════════════════════════════════════════════════════════
+   Connect Form — Storefront Styles
+   Mobile-first, responsive, accessible
+═══════════════════════════════════════════════════════════════ */
+
+/* Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+/* ─── Root Variables ─────────────────────────────────────────── */
+.connect-form-block {
+  --cf-primary: #6366f1;
+  --cf-btn-bg: #6366f1;
+  --cf-btn-text: #ffffff;
+  --cf-bg: #ffffff;
+  --cf-radius: 8px;
+  --cf-font: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --cf-text: #111827;
+  --cf-border: #d1d5db;
+  --cf-label: #374151;
+  --cf-placeholder: #9ca3af;
+  --cf-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  --cf-focus-ring: 0 0 0 3px rgba(99,102,241,0.2);
+  --cf-error: #ef4444;
+  --cf-success-bg: #ecfdf5;
+  --cf-success-text: #065f46;
+  
+  font-family: var(--cf-font);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.connect-form-block *,
+.connect-form-block *::before,
+.connect-form-block *::after {
+  box-sizing: border-box;
+}
+
+/* ─── Loading State ───────────────────────────────────────────── */
+.cf-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px;
+}
+
+.cf-spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid #e5e7eb;
+  border-top-color: var(--cf-primary);
+  border-radius: 50%;
+  animation: cf-spin 0.8s linear infinite;
+}
+
+@keyframes cf-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ─── Form Container ─────────────────────────────────────────── */
+.cf-form {
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 32px;
+  background: var(--cf-bg);
+  border-radius: calc(var(--cf-radius) * 1.5);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+  font-family: var(--cf-font);
+}
+
+/* ─── Fields Grid ─────────────────────────────────────────────── */
+.cf-fields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.cf-field {
+  width: 100%;
+  position: relative;
+}
+
+.cf-width-full { width: 100%; }
+.cf-width-half { width: calc(50% - 8px); }
+
+@media (max-width: 640px) {
+  .cf-width-half { width: 100%; }
+  .cf-form { padding: 20px; }
+}
+
+/* ─── Labels ─────────────────────────────────────────────────── */
+.cf-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--cf-label, #374151);
+  margin-bottom: 6px;
+  line-height: 1.4;
+}
+
+.cf-help {
+  font-size: 12px;
+  color: var(--cf-placeholder);
+  margin: 0 0 6px;
+}
+
+/* ─── Inputs ─────────────────────────────────────────────────── */
+.cf-input,
+.cf-textarea,
+.cf-select {
+  width: 100%;
+  padding: 10px 14px;
+  font-size: 15px;
+  font-family: var(--cf-font);
+  color: var(--cf-text);
+  background: var(--cf-bg);
+  border: 1.5px solid var(--cf-border);
+  border-radius: var(--cf-radius);
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.cf-input::placeholder,
+.cf-textarea::placeholder {
+  color: var(--cf-placeholder);
+}
+
+.cf-input:focus,
+.cf-textarea:focus,
+.cf-select:focus {
+  border-color: var(--cf-primary);
+  box-shadow: var(--cf-focus-ring);
+}
+
+.cf-textarea {
+  resize: vertical;
+  min-height: 100px;
+  line-height: 1.6;
+}
+
+.cf-select {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 12px center;
+  background-repeat: no-repeat;
+  background-size: 16px;
+  padding-right: 40px;
+  cursor: pointer;
+}
+
+/* ─── Radio & Checkbox ───────────────────────────────────────── */
+.cf-radio-group,
+.cf-checkbox-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cf-radio-label,
+.cf-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: var(--cf-text);
+  cursor: pointer;
+  line-height: 1.5;
+}
+
+.cf-radio-label input,
+.cf-checkbox-label input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--cf-primary);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+/* ─── Rating ─────────────────────────────────────────────────── */
+.cf-rating-group {
+  display: flex;
+  gap: 4px;
+}
+
+.cf-star {
+  background: none;
+  border: none;
+  font-size: 32px;
+  color: #d1d5db;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  transition: color 0.1s, transform 0.1s;
+}
+
+.cf-star:hover,
+.cf-star-active {
+  color: var(--cf-primary);
+  transform: scale(1.1);
+}
+
+/* ─── File Upload ─────────────────────────────────────────────── */
+.cf-file {
+  width: 100%;
+  padding: 8px;
+  font-size: 14px;
+  font-family: var(--cf-font);
+  color: var(--cf-text);
+  border: 2px dashed var(--cf-border);
+  border-radius: var(--cf-radius);
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+.cf-file:hover {
+  border-color: var(--cf-primary);
+}
+
+/* ─── Submit Button ──────────────────────────────────────────── */
+.cf-submit-wrapper {
+  width: 100%;
+  margin-top: 8px;
+}
+
+.cf-submit {
+  display: block;
+  width: 100%;
+  padding: 13px 24px;
+  background: var(--cf-btn-bg);
+  color: var(--cf-btn-text, #ffffff);
+  border: none;
+  border-radius: var(--cf-radius);
+  font-size: 16px;
+  font-weight: 600;
+  font-family: var(--cf-font);
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.1s;
+  letter-spacing: 0.01em;
+}
+
+.cf-submit:hover:not(:disabled) {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.cf-submit:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.cf-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ─── Field Errors ───────────────────────────────────────────── */
+.cf-field-error {
+  display: block;
+  font-size: 12px;
+  color: var(--cf-error);
+  margin-top: 4px;
+}
+
+.cf-field:has(.cf-field-error:not([style*="display: none"])) .cf-input,
+.cf-field:has(.cf-field-error:not([style*="display: none"])) .cf-textarea,
+.cf-field:has(.cf-field-error:not([style*="display: none"])) .cf-select {
+  border-color: var(--cf-error);
+}
+
+/* ─── Success & Error Messages ───────────────────────────────── */
+.cf-success-message {
+  padding: 20px 24px;
+  background: var(--cf-success-bg);
+  color: var(--cf-success-text);
+  border-radius: var(--cf-radius);
+  font-size: 16px;
+  font-weight: 500;
+  text-align: center;
+  border: 1px solid #a7f3d0;
+  animation: cf-fade-in 0.3s ease;
+}
+
+.cf-error-message {
+  padding: 16px 20px;
+  background: #fef2f2;
+  color: #991b1b;
+  border-radius: var(--cf-radius);
+  font-size: 14px;
+  border: 1px solid #fecaca;
+  margin-top: 12px;
+}
+
+@keyframes cf-fade-in {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── Notice (no form ID) ────────────────────────────────────── */
+.cf-notice {
+  padding: 20px;
+  background: #f9fafb;
+  border: 2px dashed #e5e7eb;
+  border-radius: 8px;
+  text-align: center;
+  color: #9ca3af;
+  font-size: 14px;
+  font-family: var(--cf-font, sans-serif);
+}
+
+/* ─── Design Variants ────────────────────────────────────────── */
+
+/* Modern Minimal */
+.cf-design-modern-minimal {
+  box-shadow: none;
+  border: 1.5px solid #e5e7eb;
+}
+.cf-design-modern-minimal .cf-input,
+.cf-design-modern-minimal .cf-textarea {
+  border: none;
+  border-bottom: 2px solid var(--cf-border);
+  border-radius: 0;
+  padding-left: 0;
+  padding-right: 0;
+  background: transparent;
+}
+.cf-design-modern-minimal .cf-input:focus,
+.cf-design-modern-minimal .cf-textarea:focus {
+  border-bottom-color: var(--cf-primary);
+  box-shadow: none;
+}
+
+/* Dark Contact */
+.cf-design-dark-contact {
+  background: #111827 !important;
+}
+.cf-design-dark-contact .cf-label { color: #f9fafb; }
+.cf-design-dark-contact .cf-input,
+.cf-design-dark-contact .cf-textarea,
+.cf-design-dark-contact .cf-select {
+  background: #1f2937;
+  border-color: #374151;
+  color: #f9fafb;
+}
+.cf-design-dark-contact .cf-input::placeholder,
+.cf-design-dark-contact .cf-textarea::placeholder { color: #6b7280; }
+
+/* Card Contact */
+.cf-design-card-contact {
+  box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+}
+
+/* Premium Gradient */
+.cf-design-premium-gradient {
+  background: linear-gradient(180deg, rgba(99,102,241,0.05) 0%, #fff 100%);
+  border: 1px solid rgba(99,102,241,0.15);
+}
+.cf-design-premium-gradient .cf-input,
+.cf-design-premium-gradient .cf-textarea {
+  border-radius: 16px;
+  padding: 12px 16px;
+}
+.cf-design-premium-gradient .cf-submit {
+  border-radius: 16px;
+}
+
+/* ─── Responsive ─────────────────────────────────────────────── */
+@media (max-width: 480px) {
+  .cf-form {
+    padding: 16px;
+    border-radius: 0;
+    box-shadow: none;
+    border: 1px solid #e5e7eb;
+  }
+  .cf-submit {
+    font-size: 15px;
+    padding: 12px 20px;
+  }
+}
+
+/* ─── Accessibility ──────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .cf-spinner { animation-duration: 1.5s; }
+  .cf-submit { transition: none; }
+  .cf-star { transition: none; }
+}
+
+.cf-input:focus-visible,
+.cf-submit:focus-visible {
+  outline: 3px solid var(--cf-primary);
+  outline-offset: 2px;
+}

@@ -1,0 +1,22 @@
+name = "connect-form-block"
+handle = "connect-form-block"
+type = "theme"
+
+[settings]
+  [[settings.fields]]
+  key = "form_id"
+  type = "text"
+  label = "Form ID"
+  placeholder = "e.g. connect-form-A8F92K"
+
+[[blocks]]
+type = "@app"
+name = "Connect Form"
+
+[blocks.settings]
+  [[blocks.settings.fields]]
+  key = "form_id"
+  type = "text"
+  label = "Form ID"
+  placeholder = "connect-form-XXXXXX"
+  info = "Enter your Connect Form ID from the app dashboard"
