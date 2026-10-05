@@ -22,6 +22,7 @@ export interface FormTemplate {
   fields: FormField[];
   defaultStyling: Record<string, unknown>;
   defaultSettings: Record<string, unknown>;
+  plan?: 'free' | 'pro';
 }
 
 export const FORM_TEMPLATES: FormTemplate[] = [
@@ -115,6 +116,7 @@ export const FORM_TEMPLATES: FormTemplate[] = [
     design: "card-contact",
     category: "Contact",
     thumbnail: "card-contact",
+    plan: "pro",
     fields: [
       { id: "f1", type: "name", label: "Name", fieldName: "name", placeholder: "Your name", required: true, width: "half" },
       { id: "f2", type: "email", label: "Email", fieldName: "email", placeholder: "Email address", required: true, width: "half" },
@@ -142,6 +144,7 @@ export const FORM_TEMPLATES: FormTemplate[] = [
     design: "floating-label",
     category: "Contact",
     thumbnail: "floating-label",
+    plan: "pro",
     fields: [
       { id: "f1", type: "name", label: "Full Name", fieldName: "name", placeholder: "Full Name", required: true, width: "full" },
       { id: "f2", type: "email", label: "Email Address", fieldName: "email", placeholder: "Email Address", required: true, width: "full" },
@@ -284,6 +287,7 @@ export const FORM_TEMPLATES: FormTemplate[] = [
     design: "split-contact",
     category: "Business",
     thumbnail: "business-inquiry",
+    plan: "pro",
     fields: [
       { id: "f1", type: "name", label: "Full Name", fieldName: "name", placeholder: "Your name", required: true, width: "half" },
       { id: "f2", type: "text", label: "Company Name", fieldName: "company", placeholder: "Company name", required: true, width: "half" },
@@ -342,6 +346,7 @@ export const FORM_TEMPLATES: FormTemplate[] = [
     design: "premium-gradient",
     category: "Premium",
     thumbnail: "premium-gradient",
+    plan: "pro",
     fields: [
       { id: "f1", type: "name", label: "Full Name", fieldName: "name", placeholder: "Your full name", required: true, width: "full" },
       { id: "f2", type: "email", label: "Email Address", fieldName: "email", placeholder: "your@email.com", required: true, width: "full" },

@@ -478,55 +478,88 @@ export default function FormEditor() {
           gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
           gap: "16px",
         }}>
-          {FORM_TEMPLATES.map((tpl) => (
-            <div
-              key={tpl.id}
-              onClick={() => selectTemplate(tpl.id)}
-              style={{
-                border: "2px solid #e5e7eb",
-                borderRadius: "12px",
-                padding: "20px",
-                cursor: "pointer",
-                transition: "all 0.2s",
-                background: "#fff",
-              }}
-              onMouseEnter={e => {
-                const el = e.currentTarget as HTMLDivElement;
-                el.style.borderColor = "#6366f1";
-                el.style.boxShadow = "0 4px 12px rgba(99,102,241,0.15)";
-              }}
-              onMouseLeave={e => {
-                const el = e.currentTarget as HTMLDivElement;
-                el.style.borderColor = "#e5e7eb";
-                el.style.boxShadow = "none";
-              }}
-            >
-              {/* Mini preview */}
-              <div style={{
-                height: "120px", borderRadius: "8px", marginBottom: "12px",
-                background: tpl.id === "dark-contact" ? "#111827" : tpl.id === "premium-gradient" ? "linear-gradient(135deg,#667eea,#764ba2)" : "#f8fafc",
-                display: "flex", flexDirection: "column", alignItems: "stretch", justifyContent: "center",
-                padding: "12px", gap: "6px", overflow: "hidden",
-              }}>
-                {tpl.fields.slice(0, 3).map((f, i) => (
-                  <div key={i} style={{
-                    height: "20px", borderRadius: "4px",
-                    background: tpl.id === "dark-contact" ? "#1f2937" : "#e5e7eb",
-                    opacity: 1 - i * 0.2,
-                  }} />
-                ))}
+          {FORM_TEMPLATES.map((tpl) => {
+            const isPro = tpl.plan === "pro";
+            const locked = isPro && shop.plan === "free";
+            return (
+              <div
+                key={tpl.id}
+                onClick={() => {
+                  if (locked) {
+                    navigate("/app/billing");
+                    return;
+                  }
+                  selectTemplate(tpl.id);
+                }}
+                style={{
+                  border: "2px solid #e5e7eb",
+                  borderRadius: "12px",
+                  padding: "20px",
+                  cursor: "pointer",
+                  transition: "all 0.2s",
+                  background: "#fff",
+                  position: "relative",
+                  opacity: locked ? 0.8 : 1,
+                }}
+                onMouseEnter={e => {
+                  if (locked) return;
+                  const el = e.currentTarget as HTMLDivElement;
+                  el.style.borderColor = "#6366f1";
+                  el.style.boxShadow = "0 4px 12px rgba(99,102,241,0.15)";
+                }}
+                onMouseLeave={e => {
+                  if (locked) return;
+                  const el = e.currentTarget as HTMLDivElement;
+                  el.style.borderColor = "#e5e7eb";
+                  el.style.boxShadow = "none";
+                }}
+              >
+                {/* PRO Badge */}
+                {isPro && (
+                  <div style={{
+                    position: "absolute", top: "12px", right: "12px",
+                    background: "linear-gradient(135deg,#667eea,#764ba2)",
+                    color: "white", fontSize: "10px", fontWeight: "bold",
+                    padding: "2px 8px", borderRadius: "10px",
+                    boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                    zIndex: 10
+                  }}>
+                    PRO
+                  </div>
+                )}
+                {/* Mini preview */}
                 <div style={{
-                  height: "22px", borderRadius: "4px",
-                  background: (tpl.defaultStyling.buttonColor as string) === "gradient"
-                    ? "linear-gradient(135deg,#667eea,#764ba2)"
-                    : (tpl.defaultStyling.buttonColor as string) || "#6366f1",
-                }} />
+                  height: "120px", borderRadius: "8px", marginBottom: "12px",
+                  background: tpl.id === "dark-contact" ? "#111827" : tpl.id === "premium-gradient" ? "linear-gradient(135deg,#667eea,#764ba2)" : "#f8fafc",
+                  display: "flex", flexDirection: "column", alignItems: "stretch", justifyContent: "center",
+                  padding: "12px", gap: "6px", overflow: "hidden",
+                  filter: locked ? "grayscale(100%)" : "none",
+                }}>
+                  {tpl.fields.slice(0, 3).map((f, i) => (
+                    <div key={i} style={{
+                      height: "20px", borderRadius: "4px",
+                      background: tpl.id === "dark-contact" ? "#1f2937" : "#e5e7eb",
+                      opacity: 1 - i * 0.2,
+                    }} />
+                  ))}
+                  <div style={{
+                    height: "22px", borderRadius: "4px",
+                    background: (tpl.defaultStyling.buttonColor as string) === "gradient"
+                      ? "linear-gradient(135deg,#667eea,#764ba2)"
+                      : (tpl.defaultStyling.buttonColor as string) || "#6366f1",
+                  }} />
+                </div>
+                
+                <InlineStack align="space-between">
+                  <Badge tone="info">{tpl.category}</Badge>
+                  {locked && <Badge tone="critical">Upgrade to Unlock</Badge>}
+                </InlineStack>
+                
+                <p style={{ margin: "8px 0 4px", fontWeight: 600, fontSize: "15px", color: "#111827" }}>{tpl.name}</p>
+                <p style={{ margin: 0, fontSize: "13px", color: "#6b7280" }}>{tpl.description}</p>
               </div>
-              <Badge tone="info">{tpl.category}</Badge>
-              <p style={{ margin: "8px 0 4px", fontWeight: 600, fontSize: "15px", color: "#111827" }}>{tpl.name}</p>
-              <p style={{ margin: 0, fontSize: "13px", color: "#6b7280" }}>{tpl.description}</p>
-            </div>
-          ))}
+            );
+          })}
         </div>
         <Box paddingBlockStart="400">
           <Button onClick={() => { setDesign("classic"); setStep(1); }}>

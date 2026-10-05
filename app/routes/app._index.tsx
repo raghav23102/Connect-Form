@@ -42,7 +42,12 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     getDashboardStats(shop.id),
     getRecentForms(shop.id, 5),
   ]);
-  return json({ shop, stats, recentForms });
+  return json({ 
+    shop, 
+    stats, 
+    recentForms: recentForms.map(f => ({ ...f, formattedDate: new Date(f.updatedAt).toLocaleDateString("en-US") })),
+    currentMonth: new Date().toLocaleString("en-US", { month: "long" }) 
+  });
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
@@ -185,7 +190,7 @@ function DesignBadge({ design }: { design: string }) {
 }
 
 export default function Dashboard() {
-  const { shop, stats, recentForms } = useLoaderData<typeof loader>();
+  const { shop, stats, recentForms, currentMonth } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
   const submit = useSubmit();
 
@@ -227,7 +232,7 @@ export default function Dashboard() {
     <StatusBadge key={`status-${form.id}`} status={form.status} />,
     <span key={`count-${form.id}`}>{form._count.submissions}</span>,
     <span key={`date-${form.id}`} style={{ color: "#9ca3af", fontSize: "13px" }}>
-      {new Date(form.updatedAt).toLocaleDateString()}
+      {form.formattedDate}
     </span>,
     <InlineStack key={`actions-${form.id}`} gap="100">
       <Button size="micro" onClick={() => handleAction("edit", form.id, form.name)}>Edit</Button>
@@ -300,7 +305,7 @@ export default function Dashboard() {
             value={stats.thisMonthSubmissions}
             icon={<Icon source={DataTableIcon} tone="base" />}
             color="#fdf4ff"
-            subtitle={new Date().toLocaleString("default", { month: "long" })}
+            subtitle={currentMonth}
           />
         </div>
 
