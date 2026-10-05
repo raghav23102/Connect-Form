@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import { useLoaderData, useNavigate, useSubmit, Form } from "@remix-run/react";
+import { useLoaderData, useNavigate, useSubmit, Form, useNavigation, useActionData } from "@remix-run/react";
 import {
   Page,
   Card,
@@ -405,10 +405,12 @@ export default function FormEditor() {
   const [fields, setFields] = useState<FormField[]>(initialFields);
   const [styling, setStyling] = useState<Record<string, unknown>>(initialStyling);
   const [settings, setSettings] = useState<Record<string, unknown>>(initialSettings);
-  const [status, setStatus] = useState(form?.status || "draft");
+  const [status, setStatus] = useState(form?.status || "active");
   const [logic, setLogic] = useState<unknown[]>(form ? JSON.parse(form.logic || "[]") : []);
   const [selectedField, setSelectedField] = useState<string | null>(null);
-  const [isSaving, setIsSaving] = useState(false);
+  const navigation = useNavigation();
+  const actionData = useActionData<{ success?: boolean; message?: string }>();
+  const isSaving = navigation.state === "submitting" || navigation.state === "loading";
   const [templateSearch, setTemplateSearch] = useState("");
 
   // ─── New rule modal ───────────────────────────────────────────────────────
@@ -452,7 +454,6 @@ export default function FormEditor() {
   };
 
   const handleSave = () => {
-    setIsSaving(true);
     submit(
       {
         intent: isNew ? "create" : "update",
@@ -623,7 +624,6 @@ export default function FormEditor() {
           content: status === "active" ? "Disable" : "Publish",
           onAction: () => setStatus(status === "active" ? "disabled" : "active"),
         },
-        ...(form ? [{ content: "Preview", url: `/app/forms/${form.id}/preview` }] : []),
       ]}
     >
       <BlockStack gap="400">
@@ -1005,4 +1005,5 @@ export default function FormEditor() {
     </Page>
   );
 }
+
 

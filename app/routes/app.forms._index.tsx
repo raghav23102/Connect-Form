@@ -114,12 +114,7 @@ export default function FormsPage() {
     if (intent === "edit") {
       navigate(`/app/forms/${formId}`);
       return;
-    }
-    if (intent === "preview") {
-      navigate(`/app/forms/${formId}/preview`);
-      return;
-    }
-    submit({ intent, formId }, { method: "post" });
+    }    submit({ intent, formId }, { method: "post" });
   };
 
   // Filter forms
@@ -150,8 +145,6 @@ export default function FormsPage() {
       {form.formattedDate}
     </span>,
     <InlineStack key={`actions-${form.id}`} gap="100" wrap>
-      <Button size="micro" onClick={() => handleAction("edit", form.id)}>Edit</Button>
-      <Button size="micro" onClick={() => handleAction("preview", form.id)}>Preview</Button>
       <Button size="micro" onClick={() => handleAction("duplicate", form.id)}>Duplicate</Button>
       <Button size="micro" onClick={() => handleAction("copyId", form.id, form.formId)}>Copy ID</Button>
       <Button
@@ -235,3 +228,4 @@ export default function FormsPage() {
     </Page>
   );
 }
+
