@@ -79,7 +79,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
   try {
     const url = new URL(request.url);
-    const returnUrl = `${url.protocol}//${url.host}/app/billing?plan=${planId}&success=1`;
+    const returnUrl = `https://${session.shop}/admin/apps/${process.env.SHOPIFY_API_KEY}/app/billing?plan=${planId}&success=1`;
     
     await billing.request({
       plan: plan.name,
@@ -306,3 +306,4 @@ export default function BillingPage() {
     </Page>
   );
 }
+
