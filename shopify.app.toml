@@ -5,6 +5,11 @@ name = "Connect Form"
 application_url = "https://connectform.vercel.app"
 embedded = true
 
+[app_proxy]
+url = "https://connectform.vercel.app/"
+subpath = "connect-form"
+prefix = "apps"
+
 [auth]
 redirect_urls = [
   "https://connectform.vercel.app/auth/callback",
