@@ -223,7 +223,7 @@ export default function BillingPage() {
                   {[
                     { label: "Active Forms", values: ["1", "3", "10", "Unlimited"] },
                     { label: "Monthly Submissions", values: ["50", "500", "2,000", "Unlimited"] },
-                    { label: "All Templates", values: ["✗", "✓", "✓", "✓"] },
+                    { label: "Templates", values: ["Basic (1)", "Simple (4)", "Pro (9)", "All (12)"] },
                     { label: "Conditional Logic", values: ["✗", "✗", "✓", "✓"] },
                     { label: "File Uploads", values: ["✗", "✗", "✓", "✓"] },
                     { label: "Multiple Recipients", values: ["✗", "✗", "✓", "✓"] },

@@ -22,7 +22,7 @@ export interface FormTemplate {
   fields: FormField[];
   defaultStyling: Record<string, unknown>;
   defaultSettings: Record<string, unknown>;
-  plan?: 'free' | 'pro';
+  plan?: 'free' | 'simple' | 'pro' | 'vip';
 }
 
 export const FORM_TEMPLATES: FormTemplate[] = [
@@ -33,6 +33,7 @@ export const FORM_TEMPLATES: FormTemplate[] = [
     design: "classic",
     category: "Contact",
     thumbnail: "classic",
+    plan: "free",
     fields: [
       { id: "f1", type: "name", label: "Name", fieldName: "name", placeholder: "Your full name", required: true, width: "full" },
       { id: "f2", type: "email", label: "Email", fieldName: "email", placeholder: "your@email.com", required: true, width: "full" },
@@ -62,6 +63,7 @@ export const FORM_TEMPLATES: FormTemplate[] = [
     design: "modern-minimal",
     category: "Contact",
     thumbnail: "modern-minimal",
+    plan: "simple",
     fields: [
       { id: "f1", type: "name", label: "Full Name", fieldName: "name", placeholder: "John Doe", required: true, width: "full" },
       { id: "f2", type: "email", label: "Email Address", fieldName: "email", placeholder: "john@example.com", required: true, width: "full" },
@@ -88,6 +90,7 @@ export const FORM_TEMPLATES: FormTemplate[] = [
     design: "split-contact",
     category: "Contact",
     thumbnail: "split-contact",
+    plan: "simple",
     fields: [
       { id: "f1", type: "name", label: "Name", fieldName: "name", placeholder: "Your name", required: true, width: "half" },
       { id: "f2", type: "email", label: "Email", fieldName: "email", placeholder: "Email address", required: true, width: "half" },
@@ -116,7 +119,7 @@ export const FORM_TEMPLATES: FormTemplate[] = [
     design: "card-contact",
     category: "Contact",
     thumbnail: "card-contact",
-    plan: "pro",
+    plan: "simple",
     fields: [
       { id: "f1", type: "name", label: "Name", fieldName: "name", placeholder: "Your name", required: true, width: "half" },
       { id: "f2", type: "email", label: "Email", fieldName: "email", placeholder: "Email address", required: true, width: "half" },
@@ -172,6 +175,7 @@ export const FORM_TEMPLATES: FormTemplate[] = [
     design: "dark-contact",
     category: "Contact",
     thumbnail: "dark-contact",
+    plan: "pro",
     fields: [
       { id: "f1", type: "name", label: "Name", fieldName: "name", placeholder: "Your name", required: true, width: "half" },
       { id: "f2", type: "email", label: "Email", fieldName: "email", placeholder: "Email address", required: true, width: "half" },
@@ -200,6 +204,7 @@ export const FORM_TEMPLATES: FormTemplate[] = [
     design: "classic",
     category: "Support",
     thumbnail: "customer-support",
+    plan: "pro",
     fields: [
       { id: "f1", type: "name", label: "Name", fieldName: "name", placeholder: "Your name", required: true, width: "half" },
       { id: "f2", type: "email", label: "Email", fieldName: "email", placeholder: "Email address", required: true, width: "half" },
@@ -230,6 +235,7 @@ export const FORM_TEMPLATES: FormTemplate[] = [
     design: "card-contact",
     category: "Inquiry",
     thumbnail: "product-inquiry",
+    plan: "pro",
     fields: [
       { id: "f1", type: "name", label: "Name", fieldName: "name", placeholder: "Your name", required: true, width: "half" },
       { id: "f2", type: "email", label: "Email", fieldName: "email", placeholder: "Email address", required: true, width: "half" },
@@ -259,6 +265,7 @@ export const FORM_TEMPLATES: FormTemplate[] = [
     design: "card-contact",
     category: "Feedback",
     thumbnail: "feedback",
+    plan: "pro",
     fields: [
       { id: "f1", type: "name", label: "Name", fieldName: "name", placeholder: "Your name", required: false, width: "half" },
       { id: "f2", type: "email", label: "Email", fieldName: "email", placeholder: "Email (optional)", required: false, width: "half" },
@@ -287,7 +294,7 @@ export const FORM_TEMPLATES: FormTemplate[] = [
     design: "split-contact",
     category: "Business",
     thumbnail: "business-inquiry",
-    plan: "pro",
+    plan: "vip",
     fields: [
       { id: "f1", type: "name", label: "Full Name", fieldName: "name", placeholder: "Your name", required: true, width: "half" },
       { id: "f2", type: "text", label: "Company Name", fieldName: "company", placeholder: "Company name", required: true, width: "half" },
@@ -319,6 +326,7 @@ export const FORM_TEMPLATES: FormTemplate[] = [
     design: "modern-minimal",
     category: "Newsletter",
     thumbnail: "newsletter-contact",
+    plan: "vip",
     fields: [
       { id: "f1", type: "name", label: "Name", fieldName: "name", placeholder: "Your name", required: true, width: "half" },
       { id: "f2", type: "email", label: "Email", fieldName: "email", placeholder: "Email address", required: true, width: "half" },
@@ -346,7 +354,7 @@ export const FORM_TEMPLATES: FormTemplate[] = [
     design: "premium-gradient",
     category: "Premium",
     thumbnail: "premium-gradient",
-    plan: "pro",
+    plan: "vip",
     fields: [
       { id: "f1", type: "name", label: "Full Name", fieldName: "name", placeholder: "Your full name", required: true, width: "full" },
       { id: "f2", type: "email", label: "Email Address", fieldName: "email", placeholder: "your@email.com", required: true, width: "full" },

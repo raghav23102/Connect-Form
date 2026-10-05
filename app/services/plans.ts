@@ -9,7 +9,7 @@ export const PLANS = {
     features: [
       "1 active form",
       "50 monthly submissions",
-      "Basic templates",
+      "1 Form Template",
       "Basic fields",
       "Form ID",
       "Basic email notification",
@@ -35,7 +35,7 @@ export const PLANS = {
     features: [
       "Up to 3 active forms",
       "500 monthly submissions",
-      "All basic templates",
+      "4 Form Templates",
       "Custom fields",
       "Custom labels",
       "Styling customization",
@@ -63,7 +63,7 @@ export const PLANS = {
     features: [
       "Up to 10 active forms",
       "2,000 monthly submissions",
-      "All templates",
+      "9 Form Templates",
       "Conditional logic",
       "File uploads",
       "Multiple recipients",

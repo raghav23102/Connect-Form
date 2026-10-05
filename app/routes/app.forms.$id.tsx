@@ -479,8 +479,11 @@ export default function FormEditor() {
           gap: "16px",
         }}>
           {FORM_TEMPLATES.map((tpl) => {
-            const isPro = tpl.plan === "pro";
-            const locked = isPro && shop.plan === "free";
+            const PLAN_LEVELS: Record<string, number> = { free: 0, simple: 1, pro: 2, vip: 3 };
+            const reqLevel = PLAN_LEVELS[tpl.plan || "free"] || 0;
+            const shopLevel = PLAN_LEVELS[shop.plan] || 0;
+            const locked = reqLevel > shopLevel;
+            
             return (
               <div
                 key={tpl.id}
@@ -514,17 +517,19 @@ export default function FormEditor() {
                   el.style.boxShadow = "none";
                 }}
               >
-                {/* PRO Badge */}
-                {isPro && (
+                {/* Plan Badge */}
+                {(tpl.plan && tpl.plan !== "free") && (
                   <div style={{
                     position: "absolute", top: "12px", right: "12px",
-                    background: "linear-gradient(135deg,#667eea,#764ba2)",
+                    background: tpl.plan === "vip" ? "linear-gradient(135deg,#f59e0b,#ef4444)" : 
+                               tpl.plan === "pro" ? "linear-gradient(135deg,#667eea,#764ba2)" :
+                               "linear-gradient(135deg,#38bdf8,#3b82f6)",
                     color: "white", fontSize: "10px", fontWeight: "bold",
                     padding: "2px 8px", borderRadius: "10px",
                     boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
                     zIndex: 10
                   }}>
-                    PRO
+                    {tpl.plan.toUpperCase()}
                   </div>
                 )}
                 {/* Mini preview */}
