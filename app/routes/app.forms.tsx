@@ -36,7 +36,11 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { session } = await authenticate.admin(request);
   const shop = await getOrCreateShop(session.shop);
   const forms = await getForms(shop.id);
-  return json({ shop, forms });
+  const formattedForms = forms.map(f => ({
+    ...f,
+    formattedDate: new Date(f.updatedAt).toLocaleDateString("en-US")
+  }));
+  return json({ shop, forms: formattedForms });
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
@@ -143,7 +147,7 @@ export default function FormsPage() {
     <StatusBadge key={`status-${form.id}`} status={form.status} />,
     <span key={`count-${form.id}`}>{form._count.submissions}</span>,
     <span key={`date-${form.id}`} style={{ color: "#9ca3af", fontSize: "13px" }}>
-      {new Date(form.updatedAt).toLocaleDateString()}
+      {form.formattedDate}
     </span>,
     <InlineStack key={`actions-${form.id}`} gap="100" wrap>
       <Button size="micro" onClick={() => handleAction("edit", form.id)}>Edit</Button>
