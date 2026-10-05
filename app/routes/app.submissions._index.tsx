@@ -128,6 +128,22 @@ export default function SubmissionsPage() {
     applyFilters({ search: value });
   };
 
+  const handleExport = async () => {
+    const url = `/app/submissions/export?formId=${formFilter[0] || ""}`;
+    const response = await fetch(url);
+    const blob = await response.blob();
+    const downloadUrl = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.style.display = "none";
+    a.href = downloadUrl;
+    a.download = `submissions-${Date.now()}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(downloadUrl);
+    document.body.removeChild(a);
+    shopify.toast.show("Export Successfully");
+  };
+
   const rows = submissions.map((s) => {
     const data = JSON.parse(s.data || "{}") as Record<string, string>;
     const name = data.name || data.Name || data["Full Name"] || "—";
@@ -179,8 +195,7 @@ export default function SubmissionsPage() {
       subtitle={`${total} total submission${total !== 1 ? "s" : ""}`}
       primaryAction={{
         content: "Export CSV",
-        url: `/app/submissions/export?formId=${formFilter[0] || ""}`,
-        external: true,
+        onAction: handleExport,
       }}
     >
       <Card>
