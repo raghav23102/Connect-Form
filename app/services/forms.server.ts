@@ -69,6 +69,7 @@ export async function createForm(
     fields?: unknown[];
     styling?: Record<string, unknown>;
     settings?: Record<string, unknown>;
+    status?: string;
   }
 ) {
   // Enforce plan limits
@@ -98,7 +99,7 @@ export async function createForm(
       name: data.name,
       description: data.description,
       design: data.design || "classic",
-      status: "draft",
+      status: data.status || "active",
       fields: JSON.stringify(data.fields || []),
       styling: JSON.stringify(data.styling || {}),
       settings: JSON.stringify(data.settings || {}),
@@ -167,7 +168,7 @@ export async function duplicateForm(formId: string, shopId: string, shopPlan: st
       name: `${original.name} (Copy)`,
       description: original.description,
       design: original.design,
-      status: "draft",
+      status: "active",
       fields: original.fields,
       styling: original.styling,
       settings: original.settings,
