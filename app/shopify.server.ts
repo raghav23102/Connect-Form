@@ -5,6 +5,7 @@ import {
   shopifyApp,
 } from "@shopify/shopify-app-remix/server";
 import { PrismaSessionStorage } from "@shopify/shopify-app-session-storage-prisma";
+import { BillingInterval } from "@shopify/shopify-app-remix/server";
 import prisma from "./db.server";
 
 const shopify = shopifyApp({
@@ -23,6 +24,23 @@ const shopify = shopifyApp({
   ...(process.env.SHOP_CUSTOM_DOMAIN
     ? { customShopDomains: [process.env.SHOP_CUSTOM_DOMAIN] }
     : {}),
+  billing: {
+    "SIMPLE": {
+      amount: 2.0,
+      currencyCode: "USD",
+      interval: BillingInterval.Every30Days,
+    },
+    "PRO": {
+      amount: 4.99,
+      currencyCode: "USD",
+      interval: BillingInterval.Every30Days,
+    },
+    "VIP": {
+      amount: 9.99,
+      currencyCode: "USD",
+      interval: BillingInterval.Every30Days,
+    },
+  },
 });
 
 export default shopify;

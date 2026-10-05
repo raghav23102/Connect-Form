@@ -22,8 +22,34 @@ import { PLANS, getPlan } from "../services/plans";
 import { prisma } from "../db.server";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const { session } = await authenticate.admin(request);
+  const { session, billing } = await authenticate.admin(request);
   const shop = await getOrCreateShop(session.shop);
+
+  const url = new URL(request.url);
+  const planParam = url.searchParams.get("plan");
+  const success = url.searchParams.get("success");
+
+  if (planParam && success === "1") {
+    try {
+      const planName = getPlan(planParam).name;
+      const { hasActivePayment } = await billing.check({
+        plans: [planName],
+        isTest: true,
+      });
+
+      if (hasActivePayment) {
+        if (shop.plan !== planParam) {
+          await prisma.shop.update({ where: { id: shop.id }, data: { plan: planParam } });
+          await prisma.subscription.create({
+            data: { shopId: shop.id, plan: planParam, status: "active" },
+          });
+        }
+        return redirect("/app/billing?updated=1");
+      }
+    } catch (err) {
+      console.error("Failed to verify billing", err);
+    }
+  }
   const currentPlan = getPlan(shop.plan);
   const subscription = await prisma.subscription.findFirst({
     where: { shopId: shop.id, status: "active" },
@@ -51,29 +77,15 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const plan = getPlan(planId);
   if (plan.price === 0) return json({ error: "Invalid plan" }, { status: 400 });
 
-  try {
-    // Create Shopify subscription using billing API
-    const response = await (billing as any).request({
-      plan: {
-        name: `Connect Form ${plan.name}`,
-        amount: plan.price,
-        currencyCode: "USD",
-        interval: "EVERY_30_DAYS",
-      },
-      isTest: process.env.NODE_ENV !== "production",
-      returnUrl: `${process.env.SHOPIFY_APP_URL}/app/billing?plan=${planId}&success=1`,
-    });
+  // Shopify's billing.request throws a Response to redirect the user to the approval screen.
+  // We must not catch it.
+  await billing.request({
+    plan: plan.name,
+    isTest: true,
+    returnUrl: `${process.env.SHOPIFY_APP_URL}/app/billing?plan=${planId}&success=1`,
+  });
 
-    return redirect(response.confirmationUrl!);
-  } catch (err) {
-    console.error("Billing error:", err);
-    // If billing API not available (dev mode), just update plan directly
-    await prisma.shop.update({ where: { id: shop.id }, data: { plan: planId } });
-    await prisma.subscription.create({
-      data: { shopId: shop.id, plan: planId, status: "active" },
-    });
-    return json({ success: true });
-  }
+  return null;
 };
 
 const PLAN_ORDER = ["free", "simple", "pro", "vip"] as const;
