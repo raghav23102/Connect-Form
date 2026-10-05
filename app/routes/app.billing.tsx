@@ -144,7 +144,7 @@ export default function BillingPage() {
           <p>
             You are currently on the <strong>{currentPlan.name}</strong> plan.
             {shop.plan === "free" && " Upgrade to unlock more forms and features."}
-            {subscription?.renewalDate && ` Renews: ${new Date(subscription.renewalDate).toLocaleDateString()}`}
+            {subscription?.renewalDate && ` Renews: ${typeof subscription.renewalDate === "string" ? subscription.renewalDate.split("T")[0] : new Date(subscription.renewalDate).toISOString().split("T")[0]}`}
           </p>
         </Banner>
 

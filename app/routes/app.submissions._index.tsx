@@ -140,13 +140,13 @@ export default function SubmissionsPage() {
         style={{ background: "none", border: "none", padding: 0, cursor: "pointer", textAlign: "left" }}
       >
         <Text as="span" variant="bodyMd" fontWeight="semibold">{name}</Text>
-        <p style={{ margin: "2px 0 0", fontSize: "12px", color: "#9ca3af" }}>{s.submissionId}</p>
+        <span style={{ display: "block", margin: "2px 0 0", fontSize: "12px", color: "#9ca3af" }}>{s.submissionId}</span>
       </button>,
       <span key={`email-${s.id}`} style={{ fontSize: "13px", color: "#6b7280" }}>{email}</span>,
       <span key={`form-${s.id}`} style={{ fontSize: "13px" }}>{s.form.name}</span>,
       <span key={`cat-${s.id}`} style={{ fontSize: "13px", color: "#9ca3af" }}>{s.category || "—"}</span>,
       <span key={`date-${s.id}`} style={{ fontSize: "13px", color: "#9ca3af" }}>
-        {new Date(s.createdAt).toLocaleDateString()}
+        {typeof s.createdAt === 'string' ? s.createdAt.split("T")[0] : new Date(s.createdAt).toISOString().split("T")[0]}
       </span>,
       <StatusBadge key={`status-${s.id}`} status={s.status} />,
       <InlineStack key={`actions-${s.id}`} gap="100">
