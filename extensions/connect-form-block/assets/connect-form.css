@@ -350,6 +350,48 @@
   box-shadow: 0 8px 32px rgba(0,0,0,0.12);
 }
 
+/* Floating Label */
+.cf-design-floating-label .cf-field {
+  position: relative;
+  margin-top: 8px;
+}
+.cf-design-floating-label .cf-label {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  font-size: 15px;
+  color: var(--cf-placeholder);
+  transition: all 0.2s ease;
+  pointer-events: none;
+  background: transparent;
+  padding: 0 4px;
+}
+.cf-design-floating-label .cf-input:focus ~ .cf-label,
+.cf-design-floating-label .cf-input:not(:placeholder-shown) ~ .cf-label,
+.cf-design-floating-label .cf-textarea:focus ~ .cf-label,
+.cf-design-floating-label .cf-textarea:not(:placeholder-shown) ~ .cf-label {
+  top: -8px;
+  left: 10px;
+  font-size: 12px;
+  color: var(--cf-primary);
+  background: var(--cf-bg);
+}
+.cf-design-floating-label .cf-input::placeholder,
+.cf-design-floating-label .cf-textarea::placeholder {
+  color: transparent;
+}
+.cf-design-floating-label .cf-input,
+.cf-design-floating-label .cf-textarea {
+  padding: 14px;
+}
+
+/* Split Contact */
+.cf-design-split-contact {
+  border-top: 6px solid var(--cf-primary);
+  border-radius: 0 0 8px 8px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+}
+
 /* Premium Gradient */
 .cf-design-premium-gradient {
   background: linear-gradient(180deg, rgba(99,102,241,0.05) 0%, #fff 100%);

@@ -120,23 +120,32 @@
       fieldWrapper.id = "cf-field-" + field.fieldName;
       fieldWrapper.setAttribute("data-field-name", field.fieldName);
 
+      let label = null;
       if (field.type !== "checkbox") {
-        const label = document.createElement("label");
+        label = document.createElement("label");
         label.className = "cf-label";
         label.htmlFor = "cf-input-" + blockId + "-" + field.fieldName;
         label.textContent = field.label + (field.required ? " *" : "");
-        fieldWrapper.appendChild(label);
       }
 
+      let help = null;
       if (field.helpText) {
-        const help = document.createElement("p");
+        help = document.createElement("p");
         help.className = "cf-help";
         help.textContent = field.helpText;
-        fieldWrapper.appendChild(help);
       }
 
       const input = createInput(blockId, field);
-      if (input) fieldWrapper.appendChild(input);
+
+      if (form.design === "floating-label") {
+        if (input) fieldWrapper.appendChild(input);
+        if (label) fieldWrapper.appendChild(label);
+        if (help) fieldWrapper.appendChild(help);
+      } else {
+        if (label) fieldWrapper.appendChild(label);
+        if (help) fieldWrapper.appendChild(help);
+        if (input) fieldWrapper.appendChild(input);
+      }
 
       const errEl = document.createElement("span");
       errEl.className = "cf-field-error";

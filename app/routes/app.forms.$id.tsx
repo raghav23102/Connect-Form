@@ -22,7 +22,7 @@ import {
   Tag,
   Icon,
 } from "@shopify/polaris";
-import { DragHandleIcon, DeleteIcon, PlusIcon } from "@shopify/polaris-icons";
+import { DragHandleIcon, DeleteIcon, PlusIcon, ArrowUpIcon, ArrowDownIcon } from "@shopify/polaris-icons";
 
 import { authenticate } from "../shopify.server";
 import {
@@ -438,6 +438,18 @@ export default function FormEditor() {
     if (selectedField === id) setSelectedField(null);
   };
 
+  const moveField = (index: number, direction: 'up' | 'down') => {
+    if (direction === 'up' && index > 0) {
+      const newFields = [...fields];
+      [newFields[index - 1], newFields[index]] = [newFields[index], newFields[index - 1]];
+      setFields(newFields);
+    } else if (direction === 'down' && index < fields.length - 1) {
+      const newFields = [...fields];
+      [newFields[index + 1], newFields[index]] = [newFields[index], newFields[index + 1]];
+      setFields(newFields);
+    }
+  };
+
   const handleSave = () => {
     setIsSaving(true);
     submit(
@@ -532,27 +544,21 @@ export default function FormEditor() {
                     {tpl.plan.toUpperCase()}
                   </div>
                 )}
-                {/* Mini preview */}
+                {/* Thumbnail Image */}
                 <div style={{
                   height: "120px", borderRadius: "8px", marginBottom: "12px",
-                  background: tpl.id === "dark-contact" ? "#111827" : tpl.id === "premium-gradient" ? "linear-gradient(135deg,#667eea,#764ba2)" : "#f8fafc",
-                  display: "flex", flexDirection: "column", alignItems: "stretch", justifyContent: "center",
-                  padding: "12px", gap: "6px", overflow: "hidden",
-                  filter: locked ? "grayscale(100%)" : "none",
+                  overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center",
+                  background: "#f8fafc", filter: locked ? "grayscale(100%) opacity(0.8)" : "none",
+                  border: "1px solid #e5e7eb"
                 }}>
-                  {tpl.fields.slice(0, 3).map((f, i) => (
-                    <div key={i} style={{
-                      height: "20px", borderRadius: "4px",
-                      background: tpl.id === "dark-contact" ? "#1f2937" : "#e5e7eb",
-                      opacity: 1 - i * 0.2,
-                    }} />
-                  ))}
-                  <div style={{
-                    height: "22px", borderRadius: "4px",
-                    background: (tpl.defaultStyling.buttonColor as string) === "gradient"
-                      ? "linear-gradient(135deg,#667eea,#764ba2)"
-                      : (tpl.defaultStyling.buttonColor as string) || "#6366f1",
-                  }} />
+                  <img 
+                    src={`/thumbnails/${tpl.thumbnail}.svg`} 
+                    alt={`${tpl.name} preview`}
+                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = `https://placehold.co/400x200/f8fafc/64748b?text=${encodeURIComponent(tpl.name)}`;
+                    }}
+                  />
                 </div>
                 
                 <InlineStack align="space-between">
@@ -686,7 +692,7 @@ export default function FormEditor() {
                       </div>
                     ) : (
                       <BlockStack gap="200">
-                        {fields.map((field) =>
+                        {fields.map((field, index) =>
                           selectedField === field.id ? (
                             <FieldEditor
                               key={field.id}
@@ -707,7 +713,11 @@ export default function FormEditor() {
                               <span style={{ fontSize: "13px", fontWeight: 500, color: "#374151" }}>
                                 {field.label || field.type} {field.required && <span style={{ color: "#ef4444" }}>*</span>}
                               </span>
-                              <span style={{ fontSize: "11px", color: "#9ca3af", background: "#f3f4f6", padding: "2px 6px", borderRadius: "4px" }}>{field.type}</span>
+                              <div style={{ display: "flex", gap: "4px", alignItems: "center" }}>
+                                <span style={{ fontSize: "11px", color: "#9ca3af", background: "#f3f4f6", padding: "2px 6px", borderRadius: "4px", marginRight: "8px" }}>{field.type}</span>
+                                <Button size="micro" icon={ArrowUpIcon} disabled={index === 0} onClick={(e) => { e.stopPropagation(); moveField(index, 'up'); }} />
+                                <Button size="micro" icon={ArrowDownIcon} disabled={index === fields.length - 1} onClick={(e) => { e.stopPropagation(); moveField(index, 'down'); }} />
+                              </div>
                             </div>
                           )
                         )}
