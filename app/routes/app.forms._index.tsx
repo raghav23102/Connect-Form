@@ -38,7 +38,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const forms = await getForms(shop.id);
   const formattedForms = forms.map(f => ({
     ...f,
-    formattedDate: typeof f.updatedAt === "string" ? f.updatedAt.split("T")[0] : new Date(f.updatedAt).toISOString().split("T")[0]
+    formattedDate: new Date(f.updatedAt).toLocaleDateString("en-US")
   }));
   return json({ shop, forms: formattedForms });
 };

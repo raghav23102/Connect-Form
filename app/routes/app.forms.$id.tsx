@@ -734,8 +734,8 @@ export default function FormEditor() {
                               </span>
                               <div style={{ display: "flex", gap: "4px", alignItems: "center" }}>
                                 <span style={{ fontSize: "11px", color: "#9ca3af", background: "#f3f4f6", padding: "2px 6px", borderRadius: "4px", marginRight: "8px" }}>{field.type}</span>
-                                <Button size="micro" icon={ArrowUpIcon} disabled={index === 0} onClick={(e) => { e.stopPropagation(); moveField(index, 'up'); }} />
-                                <Button size="micro" icon={ArrowDownIcon} disabled={index === fields.length - 1} onClick={(e) => { e.stopPropagation(); moveField(index, 'down'); }} />
+                                <Button size="micro" icon={ArrowUpIcon} disabled={index === 0} onClick={() => moveField(index, 'up')} />
+                                <Button size="micro" icon={ArrowDownIcon} disabled={index === fields.length - 1} onClick={() => moveField(index, 'down')} />
                               </div>
                             </div>
                           )

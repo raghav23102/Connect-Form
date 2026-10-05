@@ -33,7 +33,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     try {
       const planName = getPlan(planParam).name;
       const { hasActivePayment } = await billing.check({
-        plans: [planName],
+        plans: [planName as "SIMPLE" | "PRO" | "VIP"],
         isTest: true,
       });
 

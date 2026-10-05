@@ -1,33 +1,27 @@
 import { prisma } from "../db.server";
 import { generateFormId, generateSubmissionId } from "./idGenerator.server";
 import { getPlan, canCreateForm, canReceiveSubmission } from "./plans";
+import { emailService } from "./email.server";
 
 // ─── Shop Management ────────────────────────────────────────────────────────
 
 export async function getOrCreateShop(shopDomain: string) {
-  let shop = await prisma.shop.findUnique({
+  return prisma.shop.upsert({
     where: { shopDomain },
-    include: { settings: true },
-  });
-
-  if (!shop) {
-    shop = await prisma.shop.create({
-      data: {
-        shopDomain,
-        plan: "free",
-        subscriptionStatus: "active",
-        settings: {
-          create: {
-            storeName: shopDomain.replace(".myshopify.com", ""),
-            notificationEmail: "",
-          },
+    update: {},
+    create: {
+      shopDomain,
+      plan: "free",
+      subscriptionStatus: "active",
+      settings: {
+        create: {
+          storeName: shopDomain.replace(".myshopify.com", ""),
+          notificationEmail: "",
         },
       },
-      include: { settings: true },
-    });
-  }
-
-  return shop;
+    },
+    include: { settings: true },
+  });
 }
 
 // ─── Forms ───────────────────────────────────────────────────────────────────
