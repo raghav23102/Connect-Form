@@ -1,6 +1,7 @@
 name = "connect-form-block"
 handle = "connect-form-block"
 type = "theme"
+uid = "caf1a4a5-e892-8845-87cc-9ee207bcc494031041e4"
 
 [settings]
   [[settings.fields]]
