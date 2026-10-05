@@ -97,7 +97,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   return null;
 };
 
-const PLAN_ORDER = ["simple", "pro", "vip"] as const;
+const PLAN_ORDER = ["free", "simple", "pro", "vip"] as const;
 
 const PLAN_COLORS: Record<string, string> = {
   free: "#6b7280",
