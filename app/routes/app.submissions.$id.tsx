@@ -25,7 +25,6 @@ import {
   updateSubmissionStatus,
   deleteSubmission,
 } from "../services/forms.server";
-import { emailService } from "../services/email.server";
 import { prisma } from "../db.server";
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
@@ -52,43 +51,6 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
     await deleteSubmission(submissionId, shop.id);
     return json({ success: true, deleted: true });
   }
-
-  if (intent === "forward") {
-    const submission = await getSubmission(submissionId, shop.id);
-    if (!submission) return json({ error: "Not found" }, { status: 404 });
-
-    const fields = JSON.parse(submission.data || "{}") as Record<string, string>;
-    const html = emailService.buildForwardEmail({
-      submissionId: submission.submissionId,
-      formName: submission.form.name,
-      fields,
-      customMessage: body.get("message") as string || undefined,
-      submittedAt: new Date(submission.createdAt).toLocaleString(),
-    });
-
-    const result = await emailService.send({
-      to: body.get("to") as string,
-      cc: (body.get("cc") as string) || undefined,
-      bcc: (body.get("bcc") as string) || undefined,
-      subject: (body.get("subject") as string) || `Fwd: ${submission.form.name} Submission`,
-      html,
-    });
-
-    await prisma.emailLog.create({
-      data: {
-        shopId: shop.id,
-        submissionId,
-        recipient: body.get("to") as string,
-        type: "forward",
-        status: result.success ? "sent" : "failed",
-        error: result.error,
-        sentAt: result.success ? new Date() : undefined,
-      },
-    });
-
-    return json({ success: result.success, error: result.error });
-  }
-
   return json({ error: "Unknown" }, { status: 400 });
 };
 
@@ -108,15 +70,6 @@ export default function SubmissionDetail() {
   const submit = useSubmit();
   const fields = JSON.parse(submission.data || "{}") as Record<string, string>;
 
-  const [showForwardModal, setShowForwardModal] = useState(false);
-  const [forwardData, setForwardData] = useState({
-    to: "",
-    cc: "",
-    bcc: "",
-    subject: `Fwd: ${submission.form.name} Submission`,
-    message: "",
-  });
-
   const handleStatusChange = (status: string) => {
     submit({ intent: "updateStatus", status }, { method: "post" });
   };
@@ -127,23 +80,12 @@ export default function SubmissionDetail() {
       navigate("/app/submissions");
     }
   };
-
-  const handleForward = () => {
-    submit(
-      { intent: "forward", ...forwardData },
-      { method: "post" }
-    );
-    setShowForwardModal(false);
-    shopify.toast.show("Submission forwarded!");
-  };
-
   return (
     <Page
       title={`Submission ${submission.submissionId}`}
       subtitle={`Form: ${submission.form.name}`}
       backAction={{ url: "/app/submissions" }}
       secondaryActions={[
-        { content: "Forward", onAction: () => setShowForwardModal(true) },
         {
           content: submission.status === "read" ? "Mark Unread" : "Mark Read",
           onAction: () => handleStatusChange(submission.status === "read" ? "new" : "read"),
@@ -224,3 +166,5 @@ export default function SubmissionDetail() {
     </Page>
   );
 }
+
+

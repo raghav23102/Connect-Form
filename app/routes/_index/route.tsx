@@ -73,7 +73,7 @@ export default function App() {
             </div>
             <h3 className={styles.featureTitle}>Collect & Forward</h3>
             <p className={styles.featureDesc}>
-              Seamlessly collect customer inquiries and automatically forward them to your support email or helpdesk.
+              Seamlessly collect customer inquiries and easily manage them in your unified dashboard.
             </p>
           </div>
 

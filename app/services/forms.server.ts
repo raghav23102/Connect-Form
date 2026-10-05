@@ -1,7 +1,6 @@
 import { prisma } from "../db.server";
 import { generateFormId, generateSubmissionId } from "./idGenerator.server";
 import { getPlan, canCreateForm, canReceiveSubmission } from "./plans";
-import { emailService } from "./email.server";
 
 // ─── Shop Management ────────────────────────────────────────────────────────
 
@@ -640,3 +639,4 @@ export async function exportSubmissionsCSV(
 
   return [headers.join(","), ...rows].join("\n");
 }
+

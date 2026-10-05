@@ -17,7 +17,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
 
 export default function FormPreviewPage() {
   const { form, shop } = useLoaderData<typeof loader>();
-  const proxyUrl = "https://" + shop.id + "/apps/connect-form?formId=" + form.formId;
+  const proxyUrl = "https://" + shop.shopDomain + "/apps/connect-form?formId=" + form.formId;
 
   return (
     <Page title={"Preview: " + form.name} backAction={{ url: "/app/forms/" + form.id }}>
