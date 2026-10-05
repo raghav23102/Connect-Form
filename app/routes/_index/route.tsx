@@ -31,7 +31,7 @@ export default function App() {
 
         {showForm && (
           <div className={styles.loginCard}>
-            <h2 className={styles.loginCardTitle}>Merchant Login</h2>
+            <h2 className={styles.loginCardTitle}>Login</h2>
             <p className={styles.loginCardDesc}>Enter your Shopify store domain to access Connect Form.</p>
             
             <Form className={styles.form} method="post" action="/auth/login">
