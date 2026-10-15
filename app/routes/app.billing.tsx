@@ -292,7 +292,7 @@ export default function BillingPage() {
             {[
               { q: "Can I change plans at any time?", a: "Yes! You can upgrade or downgrade at any time. Upgrades take effect immediately. Downgrades take effect at the end of your billing cycle." },
               { q: "What happens to my forms if I downgrade?", a: "Your forms will remain saved, but forms exceeding your plan's limit will be disabled. You can re-enable them after upgrading." },
-              { q: "Is there a free trial?", a: "The Free plan is free forever. Paid plans are billed monthly with no long-term commitment." },
+              { q: "Is there a free trial?", a: "Paid plans have a 0-day free trial — billing starts immediately upon subscribing. The Free plan is always available at no cost." },
               { q: "What payment methods are accepted?", a: "Payments are processed through Shopify Billing, which accepts all major credit cards." },
             ].map((faq, i) => (
               <div key={i} style={{ paddingBottom: "12px" }}>

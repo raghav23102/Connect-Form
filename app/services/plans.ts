@@ -29,7 +29,7 @@ export const PLANS = {
   simple: {
     id: "simple",
     name: "SIMPLE",
-    price: 2.0,
+    price: 22.99,
     maxActiveForms: 3,
     maxSubmissionsPerMonth: 500,
     features: [
@@ -56,7 +56,7 @@ export const PLANS = {
   pro: {
     id: "pro",
     name: "PRO",
-    price: 4.99,
+    price: 79,
     maxActiveForms: 10,
     maxSubmissionsPerMonth: 2000,
     features: [
@@ -85,7 +85,7 @@ export const PLANS = {
   vip: {
     id: "vip",
     name: "VIP",
-    price: 9.99,
+    price: 99.99,
     maxActiveForms: Infinity,
     maxSubmissionsPerMonth: Infinity,
     features: [
