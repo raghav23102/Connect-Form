@@ -34,6 +34,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       const planName = getPlan(planParam).name;
       const { hasActivePayment } = await billing.check({
         plans: [planName as "SIMPLE" | "PRO" | "VIP"],
+        isTest: false,
       });
 
       if (hasActivePayment) {
@@ -83,6 +84,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     await billing.request({
       plan: plan.name,
       returnUrl: returnUrl,
+      isTest: false,
     });
   } catch (err: any) {
     if (err instanceof Response) {
